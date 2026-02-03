@@ -1,16 +1,13 @@
 
-// ... (imports remain the same)
 import React, { useState, useEffect } from 'react';
 import { store } from '../services/store';
-import { Users, DollarSign, List, CheckCircle, XCircle, Settings, LogOut, Crown, CheckSquare, Plus, Trash2, Bell, MessageCircle, Send, Shield, FileText, Database, Edit3, Mail, Briefcase, Grid, Menu, PlusCircle, Save, PlayCircle, Lock, Headset, ChevronRight, Filter, Link, Video, Instagram, Facebook, Smartphone, Folder, Image, ThumbsUp, Youtube, Music, Layout, Code, Eye, Brain, FolderPlus, MonitorPlay, MousePointer, Moon, Sun, BellRing, Wrench, ExternalLink, X, AlertTriangle, Activity, ToggleLeft, ToggleRight, CreditCard, Gift, Power } from 'lucide-react';
+import { Users, DollarSign, List, CheckCircle, XCircle, Settings, LogOut, Crown, CheckSquare, Plus, Trash2, Bell, MessageCircle, Send, Shield, FileText, Database, Edit3, Mail, Briefcase, Grid, Menu, PlusCircle, Save, PlayCircle, Lock, Headset, ChevronRight, Filter, Link, Video, Instagram, Facebook, Smartphone, Folder, Image, ThumbsUp, Youtube, Music, Layout, Code, Eye, Brain, FolderPlus, MonitorPlay, MousePointer, Moon, Sun, BellRing, Wrench, ExternalLink, X, AlertTriangle, Activity, ToggleLeft, ToggleRight, CreditCard, Gift, Power, Rocket } from 'lucide-react';
 import { Task, WalletType, User, CustomPage, Tool } from '../types';
 import { Logo } from '../components/Logo';
 
 interface AdminProps {
   onLogout: () => void;
 }
-
-// ... (Icons & Helpers remain the same)
 
 const TikTok = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -205,6 +202,7 @@ export const AdminPanel: React.FC<AdminProps> = ({ onLogout }) => {
                        </div>
                        <div><label className={labelStyle}>Status</label><select className={inputStyle} value={editForm.status} onChange={e=>setEditForm({...editForm, status: e.target.value as any})}><option value="ACTIVE">Active</option><option value="BLOCKED">Blocked</option></select></div>
                        <div><label className={labelStyle}>Account Type</label><select className={inputStyle} value={editForm.accountType} onChange={e=>setEditForm({...editForm, accountType: e.target.value as any})}><option value="FREE">Free</option><option value="PREMIUM">Premium</option></select></div>
+                       <div><label className={labelStyle}>Pending Prem Quizzes</label><input className={inputStyle} type="number" value={editForm.pendingPremiumQuizzes} onChange={e=>setEditForm({...editForm, pendingPremiumQuizzes:Number(e.target.value)})}/></div>
                     </div>
                     <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
                        <button onClick={saveUser} className="flex-1 bg-emerald-600 text-white py-2 rounded-lg font-bold hover:bg-emerald-700">Save Changes</button>
@@ -928,6 +926,8 @@ export const AdminPanel: React.FC<AdminProps> = ({ onLogout }) => {
       const [localSettings, setLocalSettings] = useState(store.settings);
       // FIXED: Added safety check for quizAdLinks to prevent 'join of undefined' error
       const [quizLinksText, setQuizLinksText] = useState((store.settings.referralConfig?.quizAdLinks || []).join('\n'));
+      // Premium Quiz Ad Links
+      const [premQuizLinksText, setPremQuizLinksText] = useState((store.settings.premiumQuizConfig?.adLinks || []).join('\n'));
 
       const saveGeneral = async () => {
           const newSettings = { 
@@ -936,6 +936,10 @@ export const AdminPanel: React.FC<AdminProps> = ({ onLogout }) => {
               referralConfig: {
                   ...localSettings.referralConfig,
                   quizAdLinks: quizLinksText.split('\n').filter(l => l.trim() !== '')
+              },
+              premiumQuizConfig: {
+                  ...localSettings.premiumQuizConfig,
+                  adLinks: premQuizLinksText.split('\n').filter(l => l.trim() !== '')
               }
           };
           await store.updateSettings(newSettings);
@@ -955,14 +959,23 @@ export const AdminPanel: React.FC<AdminProps> = ({ onLogout }) => {
                </div>
             </div>
 
-            {/* Links */}
+            {/* NEW: Launch Event Config */}
             <div className={cardStyle}>
-               <h4 className={`font-bold mb-4 ${headingStyle} border-b pb-2`}>Social & Support Links</h4>
-               <div className="grid md:grid-cols-2 gap-4">
-                  <div><label className={labelStyle}>Telegram Channel</label><input className={inputStyle} value={localSettings.supportConfig.freeTelegramChannelLink} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, freeTelegramChannelLink: e.target.value}})}/></div>
-                  <div><label className={labelStyle}>Telegram Group</label><input className={inputStyle} value={localSettings.supportConfig.freeTelegramGroupLink} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, freeTelegramGroupLink: e.target.value}})}/></div>
-                  <div><label className={labelStyle}>Admin WhatsApp</label><input className={inputStyle} value={localSettings.supportConfig.premiumAdminWhatsapp} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, premiumAdminWhatsapp: e.target.value}})}/></div>
-                  <div><label className={labelStyle}>WhatsApp Link</label><input className={inputStyle} value={localSettings.supportConfig.whatsappSupportLink} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, whatsappSupportLink: e.target.value}})}/></div>
+               <h4 className={`font-bold mb-4 ${headingStyle} border-b pb-2 flex items-center gap-2`}><Rocket size={18}/> Launch Event / Dhamaka Offer</h4>
+               <div className="space-y-3">
+                   <div>
+                       <label className={labelStyle}>Event Date & Time (ISO String)</label>
+                       <input className={inputStyle} value={localSettings.launchConfig?.launchDate} onChange={e=>setLocalSettings({...localSettings, launchConfig: {...localSettings.launchConfig, launchDate: e.target.value}})} placeholder="YYYY-MM-DDTHH:MM:SS"/>
+                       <p className="text-[10px] text-gray-500">Example: 2025-05-20T10:00:00</p>
+                   </div>
+                   <div>
+                       <label className={labelStyle}>HTML Content (Description)</label>
+                       <textarea className={inputStyle + " h-24"} value={localSettings.launchConfig?.htmlContent} onChange={e=>setLocalSettings({...localSettings, launchConfig: {...localSettings.launchConfig, htmlContent: e.target.value}})} placeholder="<p>Coming Soon...</p>"/>
+                   </div>
+                   <div>
+                       <label className={labelStyle}>Action Link (After Timer Ends)</label>
+                       <input className={inputStyle} value={localSettings.launchConfig?.actionLink} onChange={e=>setLocalSettings({...localSettings, launchConfig: {...localSettings.launchConfig, actionLink: e.target.value}})}/>
+                   </div>
                </div>
             </div>
 
@@ -979,6 +992,31 @@ export const AdminPanel: React.FC<AdminProps> = ({ onLogout }) => {
                         <textarea className={inputStyle + " h-32 font-mono text-xs"} value={quizLinksText} onChange={e=>setQuizLinksText(e.target.value)} placeholder="https://link1.com&#10;https://link2.com"></textarea>
                     </div>
                 </div>
+            </div>
+
+            {/* NEW: Premium Quiz Settings */}
+             <div className={cardStyle}>
+                <h4 className={`font-bold mb-4 ${headingStyle} border-b pb-2 flex items-center gap-2`}><Crown size={18}/> Premium Quiz Settings</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div><label className={labelStyle}>Premium Quiz Rate (Tk)</label><input type="number" className={inputStyle} value={localSettings.premiumQuizConfig?.rate} onChange={e=>setLocalSettings({...localSettings, premiumQuizConfig: {...localSettings.premiumQuizConfig, rate: Number(e.target.value)}})}/></div>
+                    <div><label className={labelStyle}>Quizzes Per Premium Referral</label><input type="number" className={inputStyle} value={localSettings.premiumQuizConfig?.quizzesPerRef} onChange={e=>setLocalSettings({...localSettings, premiumQuizConfig: {...localSettings.premiumQuizConfig, quizzesPerRef: Number(e.target.value)}})}/></div>
+                    <div><label className={labelStyle}>Timer (Seconds)</label><input type="number" className={inputStyle} value={localSettings.premiumQuizConfig?.timer} onChange={e=>setLocalSettings({...localSettings, premiumQuizConfig: {...localSettings.premiumQuizConfig, timer: Number(e.target.value)}})}/></div>
+                    <div className="col-span-2">
+                        <label className={labelStyle}>Ad Links (One per line)</label>
+                        <textarea className={inputStyle + " h-32 font-mono text-xs"} value={premQuizLinksText} onChange={e=>setPremQuizLinksText(e.target.value)} placeholder="https://link1.com"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            {/* Links */}
+            <div className={cardStyle}>
+               <h4 className={`font-bold mb-4 ${headingStyle} border-b pb-2`}>Social & Support Links</h4>
+               <div className="grid md:grid-cols-2 gap-4">
+                  <div><label className={labelStyle}>Telegram Channel</label><input className={inputStyle} value={localSettings.supportConfig.freeTelegramChannelLink} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, freeTelegramChannelLink: e.target.value}})}/></div>
+                  <div><label className={labelStyle}>Telegram Group</label><input className={inputStyle} value={localSettings.supportConfig.freeTelegramGroupLink} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, freeTelegramGroupLink: e.target.value}})}/></div>
+                  <div><label className={labelStyle}>Admin WhatsApp</label><input className={inputStyle} value={localSettings.supportConfig.premiumAdminWhatsapp} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, premiumAdminWhatsapp: e.target.value}})}/></div>
+                  <div><label className={labelStyle}>WhatsApp Link</label><input className={inputStyle} value={localSettings.supportConfig.whatsappSupportLink} onChange={e=>setLocalSettings({...localSettings, supportConfig: {...localSettings.supportConfig, whatsappSupportLink: e.target.value}})}/></div>
+               </div>
             </div>
 
             <button onClick={saveGeneral} className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-emerald-700 flex justify-center items-center gap-2"><Save size={20}/> Save All Settings</button>
@@ -1168,10 +1206,16 @@ export const AdminPanel: React.FC<AdminProps> = ({ onLogout }) => {
                   if(u.referrerId) {
                       const referrer = store.users.find(ru => ru.id === u.referrerId);
                       if(referrer && referrer.accountType === 'PREMIUM') {
+                          // Cash Bonus
                           const bonus = Number(store.settings.referralConfig.level1Bonus);
                           referrer.balanceMain += bonus;
+                          
+                          // NEW: Premium Quiz Bonus (e.g., 5 Quizzes)
+                          const quizBonus = Number(store.settings.premiumQuizConfig?.quizzesPerRef || 5);
+                          referrer.pendingPremiumQuizzes = (referrer.pendingPremiumQuizzes || 0) + quizBonus;
+
                           await store.updateUser(referrer);
-                          notifyUser(referrer.id, "Premium Referral Bonus", `You earned ${bonus} Tk for premium referral!`);
+                          notifyUser(referrer.id, "Premium Referral Bonus", `You earned ${bonus} Tk and ${quizBonus} Premium Quizzes!`);
                       }
                   }
                   await store.updateUser({ ...u, accountType: 'PREMIUM' }); 
@@ -1183,135 +1227,150 @@ export const AdminPanel: React.FC<AdminProps> = ({ onLogout }) => {
 
       const savePrem = async () => {
           const newSettings = { 
-              ...store.settings, 
-              premiumFee: Number(premSettings.fee), 
+              ...store.settings,
+              premiumFee: Number(premSettings.fee),
+              premiumDescription: premSettings.desc,
               isPremiumActive: premSettings.isActive,
-              referralConfig: { ...store.settings.referralConfig, level1Bonus: Number(premSettings.refBonus) },
-              paymentNumbers: { bkash: premSettings.bkash, nagad: premSettings.nagad, rocket: premSettings.rocket }, 
-              premiumDescription: premSettings.desc 
+              paymentNumbers: {
+                  bkash: premSettings.bkash,
+                  nagad: premSettings.nagad,
+                  rocket: premSettings.rocket
+              },
+              referralConfig: {
+                  ...store.settings.referralConfig,
+                  level1Bonus: Number(premSettings.refBonus)
+              }
           };
           await store.updateSettings(newSettings);
           saveAndNotify("Premium Settings Saved!");
       };
 
       return (
-          <div className="space-y-4">
+          <div className="space-y-6">
               <div className="flex gap-2 border-b pb-2">
                   <button onClick={()=>setTab('REQUESTS')} className={`px-4 py-2 rounded-lg font-bold text-sm ${tab==='REQUESTS'?'bg-emerald-600 text-white':'text-gray-500 hover:bg-gray-100'}`}>Requests</button>
                   <button onClick={()=>setTab('SETTINGS')} className={`px-4 py-2 rounded-lg font-bold text-sm ${tab==='SETTINGS'?'bg-emerald-600 text-white':'text-gray-500 hover:bg-gray-100'}`}>Settings</button>
               </div>
 
               {tab === 'REQUESTS' && (
-                  <>
-                  {reqs.map(r => (
-                      <div key={r.id} className={cardStyle + " flex justify-between items-center"}>
-                          <div><UserRequestInfo userId={r.userId}/><div className="text-xs mt-1">TrxID: <b>{r.transactionId}</b> | {r.method}</div></div>
-                          <div className="flex gap-2"><button onClick={()=>handle(r.id, 'APPROVED')} className="bg-emerald-500 text-white px-3 py-1 rounded">Approve</button><button onClick={()=>handle(r.id, 'REJECTED')} className="bg-red-500 text-white px-3 py-1 rounded">Reject</button></div>
-                      </div>
-                  ))}
-                  {reqs.length === 0 && <div className="text-center text-gray-400 py-10">No pending requests.</div>}
-                  </>
+                  <div className="space-y-4">
+                      {reqs.map(r => (
+                          <div key={r.id} className={cardStyle}>
+                              <UserRequestInfo userId={r.userId}/>
+                              <div className="flex justify-between items-center mt-3 bg-gray-50 p-3 rounded">
+                                  <div className="text-sm">
+                                      <p><strong>Method:</strong> {r.method}</p>
+                                      <p><strong>TrxID:</strong> {r.transactionId}</p>
+                                      <p><strong>From:</strong> {r.paymentFromNumber}</p>
+                                  </div>
+                                  <div className="text-right">
+                                      <p className="font-bold text-amber-600">{r.amount} Tk</p>
+                                      <p className="text-[10px] text-gray-400">{new Date(r.date).toLocaleDateString()}</p>
+                                  </div>
+                              </div>
+                              <div className="flex gap-2 mt-3">
+                                  <button onClick={()=>handle(r.id, 'APPROVED')} className="flex-1 bg-emerald-600 text-white py-2 rounded font-bold text-xs hover:bg-emerald-700">Approve</button>
+                                  <button onClick={()=>handle(r.id, 'REJECTED')} className="flex-1 bg-red-500 text-white py-2 rounded font-bold text-xs hover:bg-red-600">Reject</button>
+                              </div>
+                          </div>
+                      ))}
+                      {reqs.length === 0 && <div className="text-center py-10 text-gray-400">No pending premium requests.</div>}
+                  </div>
               )}
 
               {tab === 'SETTINGS' && (
                   <div className={cardStyle}>
                       <h4 className={`font-bold mb-4 ${headingStyle}`}>Premium Configuration</h4>
-                      <div className="space-y-3">
-                          <div className="flex items-center gap-2 mb-4 p-3 bg-amber-50 rounded border border-amber-200">
-                              <input type="checkbox" className="w-5 h-5 accent-amber-600" checked={premSettings.isActive} onChange={e=>setPremSettings({...premSettings, isActive: e.target.checked})}/>
-                              <span className="font-bold text-amber-800">Enable Premium System</span>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                              <div><label className={labelStyle}>Activation Fee (Tk)</label><input type="number" className={inputStyle} value={premSettings.fee} onChange={e=>setPremSettings({...premSettings, fee: Number(e.target.value)})}/></div>
-                              <div><label className={labelStyle}>Premium Ref Bonus (Tk)</label><input type="number" className={inputStyle} value={premSettings.refBonus} onChange={e=>setPremSettings({...premSettings, refBonus: Number(e.target.value)})}/></div>
-                          </div>
-
-                          <div className="grid grid-cols-3 gap-3">
-                              <div><label className={labelStyle}>bKash</label><input className={inputStyle} value={premSettings.bkash} onChange={e=>setPremSettings({...premSettings, bkash: e.target.value})}/></div>
-                              <div><label className={labelStyle}>Nagad</label><input className={inputStyle} value={premSettings.nagad} onChange={e=>setPremSettings({...premSettings, nagad: e.target.value})}/></div>
-                              <div><label className={labelStyle}>Rocket</label><input className={inputStyle} value={premSettings.rocket} onChange={e=>setPremSettings({...premSettings, rocket: e.target.value})}/></div>
-                          </div>
-                          <div><label className={labelStyle}>Benefits Text (HTML)</label><textarea className={inputStyle + " h-24"} value={premSettings.desc} onChange={e=>setPremSettings({...premSettings, desc: e.target.value})}/></div>
+                      <div className="grid md:grid-cols-2 gap-4">
+                          <div><label className={labelStyle}>Premium Fee (Tk)</label><input type="number" className={inputStyle} value={premSettings.fee} onChange={e=>setPremSettings({...premSettings, fee: Number(e.target.value)})}/></div>
+                          <div><label className={labelStyle}>Ref Bonus (Level 1)</label><input type="number" className={inputStyle} value={premSettings.refBonus} onChange={e=>setPremSettings({...premSettings, refBonus: Number(e.target.value)})}/></div>
+                          <div><label className={labelStyle}>bKash Number</label><input className={inputStyle} value={premSettings.bkash} onChange={e=>setPremSettings({...premSettings, bkash: e.target.value})}/></div>
+                          <div><label className={labelStyle}>Nagad Number</label><input className={inputStyle} value={premSettings.nagad} onChange={e=>setPremSettings({...premSettings, nagad: e.target.value})}/></div>
+                          <div><label className={labelStyle}>Rocket Number</label><input className={inputStyle} value={premSettings.rocket} onChange={e=>setPremSettings({...premSettings, rocket: e.target.value})}/></div>
+                          <div className="flex items-center gap-2 mt-4"><input type="checkbox" className="w-5 h-5" checked={premSettings.isActive} onChange={e=>setPremSettings({...premSettings, isActive: e.target.checked})}/> <span className="font-bold">Premium Active</span></div>
+                          <div className="col-span-2"><label className={labelStyle}>Description</label><textarea className={inputStyle} value={premSettings.desc} onChange={e=>setPremSettings({...premSettings, desc: e.target.value})}/></div>
                       </div>
-                      <button onClick={savePrem} className="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mt-4 shadow-lg">Save Configuration</button>
+                      <button onClick={savePrem} className="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mt-4 shadow-lg">Save Premium Settings</button>
                   </div>
               )}
           </div>
       );
   };
 
-  const menuItems = [
-     { id: 'dashboard', label: 'Dashboard', icon: Grid },
-     { id: 'users', label: 'Users', icon: Users },
-     { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-     { id: 'withdraw', label: 'Withdraws', icon: DollarSign },
-     { id: 'job_withdraw', label: 'Job Transfers', icon: Briefcase },
-     { id: 'social', label: 'Social Sell', icon: Instagram },
-     { id: 'premium', label: 'Premium', icon: Crown },
-     { id: 'videos', label: 'Videos', icon: Video },
-     { id: 'support', label: 'Support', icon: Headset },
-     { id: 'notifications', label: 'Notify', icon: Bell },
-     { id: 'tools', label: 'Tools', icon: Wrench },
-     { id: 'buttons', label: 'Custom Pages', icon: MousePointer },
-     { id: 'settings', label: 'Settings', icon: Settings },
-  ];
-
   return (
-    <div className={`min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className={`min-h-screen font-sans flex transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {toastMsg && <Toast message={toastMsg} onClose={()=>setToastMsg('')}/>}
       
       {/* Sidebar */}
-      <div className={`fixed md:relative top-0 left-0 h-full w-64 z-50 transform transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 shadow-2xl flex flex-col ${darkMode ? 'bg-black border-r border-gray-800' : 'bg-slate-900 text-white'}`}>
-         <div className="p-5 flex justify-between items-center border-b border-gray-700">
-            <Logo size="small" className="text-white filter brightness-200"/> 
-            <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-white"><XCircle /></button>
-         </div>
-         <div className="flex-1 p-4 space-y-1 overflow-y-auto h-full no-scrollbar">
-            {menuItems.map(item => (
-               <button key={item.id} onClick={() => { setView(item.id); setSidebarOpen(false); }} className={`w-full text-left p-3 rounded-lg flex gap-3 items-center transition ${view === item.id ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400 hover:bg-white/10 hover:text-white'}`}>
-                  <item.icon size={18}/> <span className="font-medium">{item.label}</span>
-               </button>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 shadow-2xl flex flex-col`}>
+        <div className="p-5 border-b border-slate-800 flex justify-between items-center">
+             <div className="flex items-center gap-2 font-bold text-xl text-emerald-400">
+                <Logo size="small" className="brightness-0 invert"/> Admin
+             </div>
+             <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-white"><X size={24}/></button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-3 space-y-1">
+            {[
+                { id: 'dashboard', label: 'Dashboard', icon: Layout },
+                { id: 'users', label: 'Users', icon: Users },
+                { id: 'tasks', label: 'Tasks', icon: CheckSquare },
+                { id: 'social', label: 'Social Jobs', icon: ThumbsUp },
+                { id: 'withdraw', label: 'Withdrawals', icon: DollarSign },
+                { id: 'job_withdraw', label: 'Job Transfers', icon: Briefcase },
+                { id: 'premium', label: 'Premium', icon: Crown },
+                { id: 'support', label: 'Support', icon: Headset },
+                { id: 'notifications', label: 'Notifications', icon: Bell },
+                { id: 'settings', label: 'Settings', icon: Settings },
+                { id: 'videos', label: 'Videos', icon: Video },
+                { id: 'tools', label: 'Tools', icon: Wrench },
+                { id: 'buttons', label: 'Custom Pages', icon: Link },
+            ].map(item => (
+                <button key={item.id} onClick={()=>{setView(item.id); setSidebarOpen(false);}} className={`w-full flex items-center gap-3 p-3 rounded-lg font-medium transition ${view===item.id ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400 hover:bg-slate-800 hover:text-white'}`}>
+                    <item.icon size={18}/> {item.label}
+                </button>
             ))}
-            <div className="h-px bg-slate-700 my-4"></div>
-            <button onClick={onLogout} className="w-full text-left p-3 rounded-lg flex gap-3 text-red-400 hover:bg-slate-800"><LogOut size={18}/> Logout</button>
-         </div>
+        </div>
+
+        <div className="p-4 border-t border-slate-800">
+             <button onClick={onLogout} className="w-full flex items-center gap-3 p-3 rounded-lg font-bold text-red-400 hover:bg-slate-800 transition"><LogOut size={18}/> Logout</button>
+        </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header */}
-        <div className={`shadow-sm p-4 flex justify-between items-center z-10 sticky top-0 ${darkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white'}`}>
-            <div className="flex items-center gap-3">
-                <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 rounded-lg bg-gray-200 text-gray-800"><Menu size={24}/></button>
-                <span className={`font-bold capitalize flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div> {menuItems.find(m=>m.id===view)?.label}
-                </span>
-            </div>
-            
-            {/* Dark Mode Toggle */}
-            <button 
-                onClick={() => setDarkMode(!darkMode)} 
-                className={`p-2 rounded-full transition ${darkMode ? 'bg-gray-700 text-yellow-400' : 'bg-gray-100 text-gray-600'}`}
-            >
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+        <div className={`shadow-sm px-6 py-4 flex justify-between items-center z-40 ${darkMode ? 'bg-gray-800 border-b border-gray-700' : 'bg-white'}`}>
+             <div className="flex items-center gap-3">
+                 <button onClick={()=>setSidebarOpen(true)} className="md:hidden text-gray-500"><Menu size={24}/></button>
+                 <h2 className={`font-bold text-lg capitalize ${headingStyle}`}>{view.replace('_', ' ')}</h2>
+             </div>
+             <div className="flex items-center gap-4">
+                 <button onClick={()=>setDarkMode(!darkMode)} className={`p-2 rounded-full transition ${darkMode ? 'bg-gray-700 text-yellow-400' : 'bg-gray-100 text-gray-600'}`}>
+                     {darkMode ? <Sun size={20}/> : <Moon size={20}/>}
+                 </button>
+                 <div className="flex items-center gap-2">
+                     <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold border border-emerald-200">A</div>
+                     <span className={`text-sm font-bold hidden sm:block ${headingStyle}`}>Admin</span>
+                 </div>
+             </div>
         </div>
-        
-        <div className={`flex-1 p-6 overflow-y-auto ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-           {view === 'dashboard' && <Dashboard />}
-           {view === 'users' && <UserManagement />}
-           {view === 'premium' && <PremiumManager />}
-           {view === 'social' && <SocialManager />}
-           {view === 'tasks' && <TaskManager />}
-           {view === 'withdraw' && <WithdrawManager />}
-           {view === 'job_withdraw' && <JobWithdrawManager />}
-           {view === 'support' && <SupportManager />}
-           {view === 'videos' && <VideoManager />}
-           {view === 'tools' && <ToolsManager />}
-           {view === 'buttons' && <ButtonManager />}
-           {view === 'notifications' && <NotificationManager />}
-           {view === 'settings' && <GeneralSettings />}
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-6 relative">
+             {view === 'dashboard' && <Dashboard />}
+             {view === 'users' && <UserManagement />}
+             {view === 'tasks' && <TaskManager />}
+             {view === 'social' && <SocialManager />}
+             {view === 'withdraw' && <WithdrawManager />}
+             {view === 'job_withdraw' && <JobWithdrawManager />}
+             {view === 'premium' && <PremiumManager />}
+             {view === 'support' && <SupportManager />}
+             {view === 'notifications' && <NotificationManager />}
+             {view === 'settings' && <GeneralSettings />}
+             {view === 'videos' && <VideoManager />}
+             {view === 'tools' && <ToolsManager />}
+             {view === 'buttons' && <ButtonManager />}
         </div>
       </div>
     </div>

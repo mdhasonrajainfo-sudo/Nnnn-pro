@@ -1,4 +1,5 @@
 
+
 import { User, Task, TaskSubmission, WithdrawRequest, AppSettings, PremiumRequest, SupportTicket, Notification, SocialSell, JobWithdrawRequest, VideoFolder, GmailOrder, CustomPage, Tool } from '../types';
 import { createClient } from '@supabase/supabase-js';
 
@@ -50,6 +51,17 @@ const INITIAL_SETTINGS: AppSettings = {
   },
   referralConfig: {
     enabled: true, signupBonus: 2, quizRate: 1, level1Bonus: 100, quizAdLinks: ["https://google.com"], quizTimer: 30
+  },
+  launchConfig: {
+      launchDate: new Date(Date.now() + 86400000).toISOString(),
+      htmlContent: "<p style='text-align:center; color: red; font-weight: bold;'>নতুন ধামাকা অফার আসছে!<br/>অপেক্ষা করুন...</p>",
+      actionLink: "https://google.com"
+  },
+  premiumQuizConfig: {
+      rate: 2,
+      quizzesPerRef: 5,
+      adLinks: ["https://google.com"],
+      timer: 30
   },
   withdrawRules: {
     MAIN: { minWithdraw: 100, feePercent: 2, enabled: true },
@@ -161,7 +173,9 @@ class LocalStore {
           referralConfig: { ...INITIAL_SETTINGS.referralConfig, ...(data.settings?.referralConfig || {}) },
           planLimits: { ...INITIAL_SETTINGS.planLimits, ...(data.settings?.planLimits || {}) },
           socialSellConfig: { ...INITIAL_SETTINGS.socialSellConfig, ...(data.settings?.socialSellConfig || {}) },
-          supportConfig: { ...INITIAL_SETTINGS.supportConfig, ...(data.settings?.supportConfig || {}) }
+          supportConfig: { ...INITIAL_SETTINGS.supportConfig, ...(data.settings?.supportConfig || {}) },
+          launchConfig: { ...INITIAL_SETTINGS.launchConfig, ...(data.settings?.launchConfig || {}) },
+          premiumQuizConfig: { ...INITIAL_SETTINGS.premiumQuizConfig, ...(data.settings?.premiumQuizConfig || {}) }
       };
     }
   }
@@ -226,6 +240,7 @@ class LocalStore {
       balanceMain: 0, 
       balanceFree: 5,
       pendingReferralBonus: 0, 
+      pendingPremiumQuizzes: 0,
       profileImage: `https://ui-avatars.com/api/?name=${data.name}&background=random`
     };
 

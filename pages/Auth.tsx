@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { store } from '../services/store';
 import { ArrowLeft, User, Phone, Lock, Mail, CreditCard, AlertCircle, Loader, CheckCircle } from 'lucide-react';
@@ -9,6 +10,24 @@ interface AuthProps {
   onNavigate: (view: string) => void;
   onLoginSuccess: () => void;
 }
+
+// Fixed: Defined InputField outside to prevent re-renders losing focus
+const InputField = ({ icon: Icon, type, placeholder, value, onChange, disabled = false }: any) => (
+    <div className="relative">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+        <Icon size={18} />
+      </div>
+      <input
+        type={type}
+        className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition bg-gray-50 text-sm text-gray-900 placeholder-gray-500"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        required
+      />
+    </div>
+);
 
 export const Auth: React.FC<AuthProps> = ({ view, onNavigate, onLoginSuccess }) => {
   const [formData, setFormData] = useState({
@@ -81,23 +100,6 @@ export const Auth: React.FC<AuthProps> = ({ view, onNavigate, onLoginSuccess }) 
       setReferrerName(null);
     }
   };
-
-  const InputField = ({ icon: Icon, type, placeholder, value, onChange, disabled = false }: any) => (
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
-        <Icon size={18} />
-      </div>
-      <input
-        type={type}
-        className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition bg-gray-50 text-sm text-gray-900 placeholder-gray-500"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        required
-      />
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-center px-6 py-12">

@@ -25,6 +25,7 @@ export interface User {
   
   // Holding/Pending
   pendingReferralBonus: number; 
+  pendingPremiumQuizzes?: number; // New: For Premium Quiz
   
   // Deprecated
   balanceJob?: number; 
@@ -266,6 +267,23 @@ export interface AppSettings {
     level1Bonus: number; 
     quizAdLinks: string[]; // Unlimited links array
     quizTimer?: number;
+    level1Percent?: number;
+    level2Percent?: number;
+    level3Percent?: number;
+  };
+
+  // New Configs
+  launchConfig: {
+      launchDate: string; // ISO String for countdown
+      htmlContent: string; // HTML Description
+      actionLink: string; // Link to redirect after time up
+  };
+
+  premiumQuizConfig: {
+      rate: number;
+      quizzesPerRef: number; // 5
+      adLinks: string[];
+      timer: number;
   };
   
   withdrawRules: {

@@ -1,9 +1,10 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { store } from '../services/store';
 import { User, Task, TaskSubmission, SupportTicket, WalletType, GmailOrder, JobWithdrawRequest, SocialSell, CustomPage, Notification, VideoFolder } from '../types';
 import { MobileHeader, Sidebar } from '../components/Layout';
-import { Home, Wallet, Users, CheckSquare, Mail, Copy, Bell, ArrowRight, Upload, Clock, Crown, MessageCircle, Edit, Save, History, Youtube, CheckCircle, Image as ImageIcon, RefreshCw, User as UserIcon, Network, Headset, Send, Lock, Eye, EyeOff, FileText, Link, ShieldAlert, Briefcase, ChevronRight, Star, PlusCircle, PlayCircle, Key, DollarSign, X, Facebook, Instagram, Music, Video, Globe, Camera, Settings, Ticket, HelpCircle, AlertCircle, Copy as CopyIcon, Smartphone, LogOut, ChevronLeft, Folder, FolderOpen, Brain, Loader, Wrench, Download, List, Moon, Sun, ExternalLink, Image, MousePointer } from 'lucide-react';
+import { Home, Wallet, Users, CheckSquare, Mail, Copy, Bell, ArrowRight, Upload, Clock, Crown, MessageCircle, Edit, Save, History, Youtube, CheckCircle, Image as ImageIcon, RefreshCw, User as UserIcon, Network, Headset, Send, Lock, Eye, EyeOff, FileText, Link, ShieldAlert, Briefcase, ChevronRight, Star, PlusCircle, PlayCircle, Key, DollarSign, X, Facebook, Instagram, Music, Video, Globe, Camera, Settings, Ticket, HelpCircle, AlertCircle, Copy as CopyIcon, Smartphone, LogOut, ChevronLeft, Folder, FolderOpen, Brain, Loader, Wrench, Download, List, Moon, Sun, ExternalLink, Image, MousePointer, Gift, Keyboard, Rocket } from 'lucide-react';
 import { Logo } from '../components/Logo';
 
 interface UserPanelProps {
@@ -120,6 +121,15 @@ export const UserPanel: React.FC<UserPanelProps> = ({ onLogout, onAdminLogin }) 
 
     return (
       <div className="p-4 space-y-5 pb-24">
+        {/* NEW: Update Rules Button (Dhamaka Offer) */}
+        <button 
+            onClick={() => setView('launch-event')}
+            className="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-2 rounded-full shadow-lg flex items-center justify-center gap-2 animate-pulse hover:scale-[1.02] transition"
+        >
+            <Gift size={18} className="animate-bounce"/>
+            <span className="text-sm font-bold">Update Rules / Dhamaka Offer</span>
+        </button>
+
         {/* Profile Header */}
         <div className={`${bgCard} p-4 rounded-2xl shadow-sm relative overflow-hidden border space-y-3`}>
           <div className="absolute right-0 top-0 p-3 opacity-5"><Crown size={80} className="text-emerald-500" /></div>
@@ -252,6 +262,192 @@ export const UserPanel: React.FC<UserPanelProps> = ({ onLogout, onAdminLogin }) 
   };
 
   // --- FULL VIEWS (Components) ---
+  
+  // 3a. New Launch Event View
+  const LaunchEventView = () => {
+      const config = store.settings.launchConfig;
+      const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number, seconds: number} | null>(null);
+      const [isLive, setIsLive] = useState(false);
+
+      useEffect(() => {
+          const target = new Date(config.launchDate).getTime();
+          const interval = setInterval(() => {
+              const now = new Date().getTime();
+              const distance = target - now;
+
+              if (distance < 0) {
+                  clearInterval(interval);
+                  setIsLive(true);
+                  setTimeLeft(null);
+              } else {
+                  setTimeLeft({
+                      days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                      hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                      minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                      seconds: Math.floor((distance % (1000 * 60)) / 1000)
+                  });
+              }
+          }, 1000);
+          return () => clearInterval(interval);
+      }, [config.launchDate]);
+
+      return (
+          <div className="p-4 space-y-6 pb-20 min-h-screen relative overflow-hidden bg-gradient-to-b from-purple-900 to-black text-white">
+              <button onClick={() => setView('dashboard')} className="flex items-center text-white/70 text-sm gap-1 mb-2 z-10 relative"><ChevronLeft size={16} /> Back to Dashboard</button>
+              
+              {/* Background FX */}
+              <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                  <div className="absolute top-10 left-10 w-32 h-32 bg-purple-500 rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-10 right-10 w-48 h-48 bg-pink-500 rounded-full blur-3xl"></div>
+              </div>
+
+              <div className="text-center relative z-10 space-y-6 pt-10">
+                  <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Launch Event</h2>
+                  <div className="w-16 h-1 bg-purple-500 mx-auto rounded-full"></div>
+
+                  {timeLeft && !isLive && (
+                      <div className="grid grid-cols-4 gap-2 text-center my-8">
+                          {Object.entries(timeLeft).map(([k, v]) => (
+                              <div key={k} className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/10">
+                                  <div className="text-2xl font-bold font-mono">{v}</div>
+                                  <div className="text-[10px] uppercase opacity-70">{k}</div>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+
+                  {isLive && (
+                      <div className="animate-bounce mb-8">
+                          <h3 className="text-2xl font-bold text-green-400">LIVE NOW!</h3>
+                      </div>
+                  )}
+
+                  <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20 text-left space-y-4">
+                      <h3 className="font-bold text-lg flex items-center gap-2"><Rocket size={20} className="text-yellow-400"/> Announcement</h3>
+                      <div 
+                        className="text-sm leading-relaxed opacity-90"
+                        dangerouslySetInnerHTML={{ __html: config.htmlContent }}
+                      />
+                  </div>
+
+                  {isLive ? (
+                      <a href={config.actionLink} target="_blank" className="block w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-xl shadow-green-500/30 animate-pulse">
+                          Go Link / Join Now
+                      </a>
+                  ) : (
+                      <button disabled className="w-full bg-gray-700 text-gray-400 py-4 rounded-xl font-bold text-lg cursor-not-allowed">
+                          Link Locked
+                      </button>
+                  )}
+              </div>
+          </div>
+      );
+  };
+
+  // 11e. Premium Quiz View (New Feature)
+  const PremiumQuizView = () => {
+      const [quizState, setQuizState] = useState<'IDLE' | 'SOLVING' | 'CLAIMING' | 'WAITING'>('IDLE');
+      const [num1, setNum1] = useState(0);
+      const [num2, setNum2] = useState(0);
+      const [answer, setAnswer] = useState('');
+      const [timer, setTimer] = useState(0);
+      
+      const config = store.settings.premiumQuizConfig;
+      const pendingQuizzes = currentUser?.pendingPremiumQuizzes || 0;
+
+      const startQuiz = () => {
+          if (pendingQuizzes <= 0) return showToast("No premium quiz available! Refer Premium Users to earn quizzes.");
+          setNum1(Math.floor(Math.random() * 20) + 10);
+          setNum2(Math.floor(Math.random() * 20) + 10);
+          setQuizState('SOLVING');
+          setAnswer('');
+      };
+
+      const submitAnswer = () => {
+          if (parseInt(answer) === num1 + num2) {
+              setQuizState('CLAIMING');
+          } else {
+              showToast("Wrong Answer!");
+          }
+      };
+
+      const handleClaim = () => {
+          const links = config.adLinks;
+          const randomLink = links[Math.floor(Math.random() * links.length)] || "https://google.com";
+          window.open(randomLink, '_blank');
+          setQuizState('WAITING');
+          setTimer(config.timer || 30);
+      };
+
+      useEffect(() => {
+          if (quizState === 'WAITING' && timer > 0) {
+              const t = setTimeout(() => setTimer(timer - 1), 1000);
+              return () => clearTimeout(t);
+          } else if (quizState === 'WAITING' && timer === 0) {
+              if (currentUser && currentUser.pendingPremiumQuizzes! > 0) {
+                  const updatedUser = { 
+                      ...currentUser,
+                      pendingPremiumQuizzes: (currentUser.pendingPremiumQuizzes || 0) - 1,
+                      balanceMain: (currentUser.balanceMain || 0) + config.rate // Goes to Main Balance
+                  };
+                  store.updateUser(updatedUser);
+                  showToast(`Successfully claimed ${config.rate} Tk (Main Wallet)!`);
+              }
+              setQuizState('IDLE');
+          }
+      }, [quizState, timer]);
+
+      return (
+          <div className="p-4 space-y-6 pb-20">
+              <button onClick={() => setView('premium')} className={`flex items-center text-sm gap-1 mb-2 ${textSub}`}><ChevronLeft size={16} /> Back to Premium</button>
+              
+              <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-6 rounded-2xl text-white shadow-lg text-center">
+                  <h2 className="text-2xl font-bold flex justify-center items-center gap-2"><Crown size={28}/> Premium Quiz</h2>
+                  <p className="opacity-90 mt-2 text-sm">Exclusive quizzes from your premium referrals.</p>
+                  <div className="mt-4 bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                      <p className="text-xs uppercase font-bold opacity-80">Quizzes Available</p>
+                      <h3 className="text-3xl font-bold">{pendingQuizzes}</h3>
+                  </div>
+              </div>
+
+              {quizState === 'IDLE' && (
+                  <div className={`${bgCard} p-6 rounded-xl shadow-sm border text-center space-y-4`}>
+                      <p className={`text-sm ${textSub}`}>Solve math problems to earn direct cash to Main Wallet. You get <strong>{config.rate} Tk</strong> per quiz.</p>
+                      <button onClick={startQuiz} disabled={pendingQuizzes <= 0} className={`w-full py-3 rounded-xl font-bold text-white shadow-lg ${pendingQuizzes <= 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700 animate-pulse'}`}>
+                          {pendingQuizzes <= 0 ? 'No Quizzes Available' : 'Start Premium Quiz'}
+                      </button>
+                  </div>
+              )}
+
+              {quizState === 'SOLVING' && (
+                  <div className={`${bgCard} p-6 rounded-xl shadow-sm border text-center space-y-4 animate-in zoom-in duration-200`}>
+                      <h3 className={`text-xl font-bold ${textTitle}`}>Calculate: {num1} + {num2} = ?</h3>
+                      <input type="number" className={bgInput + " w-full p-3 border-2 rounded-xl text-center text-xl font-bold"} value={answer} onChange={e => setAnswer(e.target.value)} placeholder="?"/>
+                      <button onClick={submitAnswer} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Submit Answer</button>
+                  </div>
+              )}
+
+              {quizState === 'CLAIMING' && (
+                  <div className={`${bgCard} p-6 rounded-xl shadow-sm border text-center space-y-4`}>
+                      <div className="text-green-500 mx-auto"><CheckCircle size={48}/></div>
+                      <h3 className={`text-lg font-bold ${textTitle}`}>Correct!</h3>
+                      <p className={`text-sm ${textSub}`}>Click below to visit the link. Wait {config.timer} seconds to claim reward.</p>
+                      <button onClick={handleClaim} className="w-full bg-orange-500 text-white py-3 rounded-xl font-bold shadow-lg animate-bounce">Visit & Claim Reward</button>
+                  </div>
+              )}
+
+              {quizState === 'WAITING' && (
+                  <div className={`${bgCard} p-6 rounded-xl shadow-sm border text-center space-y-4`}>
+                      <div className="text-blue-500 mx-auto animate-spin"><RefreshCw size={48}/></div>
+                      <h3 className={`text-xl font-bold ${textTitle}`}>Please Wait...</h3>
+                      <p className="text-4xl font-mono font-bold text-blue-600">{timer}s</p>
+                      <p className="text-xs text-red-500">Do not close this tab!</p>
+                  </div>
+              )}
+          </div>
+      );
+  };
+
 
   // 4. Free Job Hub
   const FreeJobHub = () => (
@@ -874,6 +1070,16 @@ export const UserPanel: React.FC<UserPanelProps> = ({ onLogout, onAdminLogin }) 
           <div className={`${bgCard} p-4 rounded-2xl shadow-sm border`}>
               <h3 className={`font-bold text-sm mb-3 ml-1 ${textTitle}`}>Premium Tools & Services</h3>
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                  {/* NEW PREMIUM QUIZ BUTTON */}
+                  <JobButton icon={Brain} title="Prem. Quiz" color="bg-amber-100 text-amber-600" onClick={() => setView('premium-quiz')} />
+                  
+                  {/* NEW TYPING JOB BUTTON - Redirects to Launch Event as requested ("Hot Job Upcoming") */}
+                  <JobButton icon={Keyboard} title="Typing Job" color="bg-purple-100 text-purple-600" onClick={() => setView('launch-event')} />
+
+                  {/* PLACEHOLDER BUTTONS - Redirect to Launch Event */}
+                  <JobButton icon={Rocket} title="Data Entry" color="bg-orange-100 text-orange-600" onClick={() => setView('launch-event')} />
+                  <JobButton icon={Gift} title="Bonus" color="bg-pink-100 text-pink-600" onClick={() => setView('launch-event')} />
+
                   <JobButton icon={Mail} title="Gmail" color="bg-red-50 text-red-600" onClick={() => setView('gmail-sell')} />
                   <JobButton icon={Facebook} title="Facebook" color="bg-blue-50 text-blue-600" onClick={() => setView('fb-sell')} />
                   <JobButton icon={Instagram} title="Instagram" color="bg-pink-50 text-pink-600" onClick={() => setView('insta-sell')} />
@@ -1675,6 +1881,8 @@ export const UserPanel: React.FC<UserPanelProps> = ({ onLogout, onAdminLogin }) 
         {view === 'dashboard' && <DashboardHome />}
         {view === 'free-job-hub' && <FreeJobHub />}
         {view === 'referral-quiz' && <ReferralQuizView />} 
+        {view === 'premium-quiz' && <PremiumQuizView />} 
+        {view === 'launch-event' && <LaunchEventView />} 
         {view === 'tasks' && <TasksView />}
         {view === 'task-detail' && <TaskDetailView />}
         

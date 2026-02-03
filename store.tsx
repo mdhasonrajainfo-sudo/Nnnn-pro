@@ -115,6 +115,17 @@ const INITIAL_SETTINGS: Settings = {
     quizAdLinks: ["https://google.com"],
     quizTimer: 30
   },
+  launchConfig: {
+      launchDate: new Date().toISOString(),
+      htmlContent: "<p>Coming Soon</p>",
+      actionLink: "#"
+  },
+  premiumQuizConfig: {
+      rate: 2,
+      quizzesPerRef: 5,
+      adLinks: ["https://google.com"],
+      timer: 30
+  },
   withdrawRules: {
     MAIN: { minWithdraw: 100, feePercent: 2, enabled: true },
     FREE: { minWithdraw: 50, feePercent: 0, enabled: true },
